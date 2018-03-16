@@ -47,6 +47,30 @@ int main() {
 		gprojection.push_back(temp);
 	}
 
+	input.close(); //Closes the input file so it can't be tampered
+
+	
+	/*
+	 * INSERT
+	 * SOLUTION
+	 * HERE
+	 */
+
+
+	//Output solution to file
+	cout << "Output file name (don't add .txt): ";
+	cin >> filename;
+	filename += ".txt";
+	ofstream output(filename.c_str()); //Create output file
+	if (!output.is_open()) { //Test that the file was created properly
+		cerr << "Error. Unable to create file " << filename << endl;
+		return -1'
+	}
+
+	//TODO: Output cost
+	//TODO: Output the number of days gas will be ordered
+	//TODO: Output D lines with the day number and the amount of gas ordered, separated by a space	
+
 
 
 	return 0;
