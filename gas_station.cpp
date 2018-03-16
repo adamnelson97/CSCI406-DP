@@ -30,17 +30,22 @@ int main() {
 	}
 
 	int n, L, P, c;
-	input >> n;
-	input >> L;
-	input >> P;
-	input >> c;
+	input >> n; //The number of days till the station closes
+	input >> L; //The maximum capacity of the overnight storage tank
+	input >> P; //The base cost for each order of gas
+	input >> c; //The cost to store a gallon of gas overnight
 
 	/*
 	 * Store the gas requirements for each day. Since the number of days may
 	 * change with inputs, we cannot use an array since their size is static.
 	 */
 
-
+	vector<int> gprojection;
+	int temp;
+	for (int i = 0; i < n; i++) {
+		input >> temp;
+		gprojection.push_back(temp);
+	}
 
 
 
