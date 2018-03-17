@@ -82,7 +82,7 @@ public class Solver {
 		// sell that day
 		int[] cost = new int[gasToSell[days - 1] + 1];
 		int smallestPurchase = 0;
-		// it's only possible to store so much fuel so we have to order a minimum amount sometimes
+		// there's a maximum amount of fuel which we would ever want to store in the tank
 		if(gasToSell[days - 1] > tankCapacity) smallestPurchase = gasToSell[days - 1] - tankCapacity;
 		
 		// for every amount of fuel we could choose to buy today...
@@ -110,12 +110,13 @@ public class Solver {
 	}
 	
 	public void dyProSolve() {
+		
 		int maxStorage;
 		if (tankCapacity*storageCost <= deliveryCost) maxStorage = tankCapacity;
 		else maxStorage = (deliveryCost - (deliveryCost % storageCost)) / storageCost;
 		TableEntry[][] bestCosts = new TableEntry[maxStorage + 1][numDays];
 		for(int gasLeftOver = 0; gasLeftOver < maxStorage + 1; gasLeftOver++) {
-			TableEntry newCost = new TableEntry(0, gasLeftOver, deliveryCost, null);
+			TableEntry newCost = new TableEntry(0, gasSoldPerDay[0] + gasLeftOver, deliveryCost, null);
 			bestCosts[gasLeftOver][0] = newCost;
 		}
 		for(int today = 1; today < numDays; today++) {
@@ -130,21 +131,27 @@ public class Solver {
 				}
 				costs[0] -= deliveryCost;
 				int minCost = costs[smallestPurchase];
+				int amountPurchased = smallestPurchase;
 				int amountFromYesterday = gasSoldPerDay[today] + gasLeftOver - smallestPurchase;
 				for(int gasBoughtToday = smallestPurchase; gasBoughtToday <= gasSoldPerDay[today] + gasLeftOver; gasBoughtToday++) {
 					if(costs[gasBoughtToday] < minCost) {
 						minCost = costs[gasBoughtToday];
+						amountPurchased = gasBoughtToday;
 						amountFromYesterday = gasSoldPerDay[today] + gasLeftOver - gasBoughtToday;
 					}
 				}
-				TableEntry newCost = new TableEntry(today, gasLeftOver, minCost, bestCosts[amountFromYesterday][today-1]); 
+				TableEntry newCost = new TableEntry(today, amountPurchased, minCost, bestCosts[amountFromYesterday][today-1]); 
 				bestCosts[gasLeftOver][today] = newCost;
 			}
 		}
 		totalCost = bestCosts[0][numDays - 1].getCost();
 		TableEntry startCell = bestCosts[0][numDays - 1];
-		while(startCell.getParent() != null){
-			System.out.println(startCell.getDay(day););
+		while(startCell != null){
+			if( startCell.getGasPurchased() != 0) {
+				numDaysPurchased++;
+				deliveryDays[startCell.getDay()] = true;
+			}
+			gasOrderedPerDay[startCell.getDay()] = startCell.getGasPurchased(); 
 			startCell = startCell.getParent();
 		}
 	}
@@ -167,13 +174,9 @@ public class Solver {
 	
 	public static void main(String[] args) {
 		
-		//RecursiveSolution solver = new RecursiveSolution("input.txt");
-		Solver solver = new Solver("smallInput.txt");
+		Solver solver = new Solver("input.txt");
 		solver.dyProSolve();
-		System.out.println("DP: " + solver.getTotalCost());
-		solver.recursiveSolve(solver.getGasSoldPerDay(), solver.getNumDays());
-		System.out.println("recursive: " + solver.getTotalCost());
 		solver.outputSolution();
-		
+		System.out.println("done");
 	}
 }
