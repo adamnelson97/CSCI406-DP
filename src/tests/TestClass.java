@@ -5,15 +5,15 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import solutions.RecursiveSolution;
+import solutions.Solver;
 
 public class TestClass {
 	
-	public static RecursiveSolution solver;
+	public static Solver solver;
 
 	@Before
 	public void getReady() {
-		 solver = new RecursiveSolution("input.txt");
+		 solver = new Solver("input.txt");
 	}
 	
 	@Test
