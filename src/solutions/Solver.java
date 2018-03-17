@@ -96,8 +96,11 @@ public class Solver {
 			// this is the cost of what it took to buy fuel through yesterday, store fuel from yesterday, and order more today
 			cost[i] = recursiveSolve(upToToday, days - 1) + deliveryCost + storageCost * (gasToSell[days - 1] - i);
 		}
+		
 		// if we don't buy any fuel, we don't pay the delivery cost though
 		cost[0] -= deliveryCost;
+		
+		// find the smallest cost option and return the cost
 		int minCost = cost[smallestPurchase];
 		for(int i = smallestPurchase; i < gasToSell[days - 1] + 1; i++) {
 			if(cost[i] < minCost) minCost = cost[i];
@@ -112,7 +115,7 @@ public class Solver {
 		else maxStorage = (deliveryCost - (deliveryCost % storageCost)) / storageCost;
 		TableEntry[][] bestCosts = new TableEntry[maxStorage + 1][numDays];
 		for(int gasLeftOver = 0; gasLeftOver < maxStorage + 1; gasLeftOver++) {
-			TableEntry newCost = new TableEntry(deliveryCost, null);
+			TableEntry newCost = new TableEntry(0, gasLeftOver, deliveryCost, null);
 			bestCosts[gasLeftOver][0] = newCost;
 		}
 		for(int today = 1; today < numDays; today++) {
@@ -134,11 +137,16 @@ public class Solver {
 						amountFromYesterday = gasSoldPerDay[today] + gasLeftOver - gasBoughtToday;
 					}
 				}
-				TableEntry newCost = new TableEntry(minCost, bestCosts[amountFromYesterday][today-1]); 
+				TableEntry newCost = new TableEntry(today, gasLeftOver, minCost, bestCosts[amountFromYesterday][today-1]); 
 				bestCosts[gasLeftOver][today] = newCost;
 			}
 		}
 		totalCost = bestCosts[0][numDays - 1].getCost();
+		TableEntry startCell = bestCosts[0][numDays - 1];
+		while(startCell.getParent() != null){
+			System.out.println(startCell.getDay(day););
+			startCell = startCell.getParent();
+		}
 	}
 	
 	public void outputSolution() {
