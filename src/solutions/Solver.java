@@ -73,7 +73,7 @@ public class Solver {
 		return gasSoldPerDay;
 	}
 	
-	public int solve(int[] gasToSell, int days) {
+	public int recursiveSolve(int[] gasToSell, int days) {
 		
 		// In the case of selling gas for a single day, you need to buy the amount of gas that you are going to sell that day.
 		if(days == 1) return deliveryCost;
@@ -94,7 +94,7 @@ public class Solver {
 			// and modify it's last day to be such that you run out of fuel today given the fuel that you stored yesterday
 			upToToday[days - 2] += gasToSell[days - 1] - i;
 			// this is the cost of what it took to buy fuel through yesterday, store fuel from yesterday, and order more today
-			cost[i] = solve(upToToday, days - 1) + deliveryCost + storageCost * (gasToSell[days - 1] - i);
+			cost[i] = recursiveSolve(upToToday, days - 1) + deliveryCost + storageCost * (gasToSell[days - 1] - i);
 		}
 		// if we don't buy any fuel, we don't pay the delivery cost though
 		cost[0] -= deliveryCost;
@@ -104,6 +104,41 @@ public class Solver {
 		}
 		totalCost = minCost;
 		return minCost;
+	}
+	
+	public void dyProSolve() {
+		int maxStorage;
+		if (tankCapacity*storageCost <= deliveryCost) maxStorage = tankCapacity;
+		else maxStorage = (deliveryCost - (deliveryCost % storageCost)) / storageCost;
+		TableEntry[][] bestCosts = new TableEntry[maxStorage + 1][numDays];
+		for(int gasLeftOver = 0; gasLeftOver < maxStorage + 1; gasLeftOver++) {
+			TableEntry newCost = new TableEntry(deliveryCost, null);
+			bestCosts[gasLeftOver][0] = newCost;
+		}
+		for(int today = 1; today < numDays; today++) {
+			for(int gasLeftOver = 0; gasLeftOver <= maxStorage; gasLeftOver++) {
+				int[] costs = new int[gasSoldPerDay[today] + gasLeftOver + 1];
+				int smallestPurchase = 0;
+				if((gasSoldPerDay[today] + gasLeftOver) > maxStorage) smallestPurchase = gasSoldPerDay[today] + gasLeftOver - maxStorage;
+				for(int gasBoughtToday = smallestPurchase; gasBoughtToday <= gasSoldPerDay[today] + gasLeftOver; gasBoughtToday++) {
+					costs[gasBoughtToday] = bestCosts[gasSoldPerDay[today] + gasLeftOver - gasBoughtToday][today - 1].getCost(); 
+					costs[gasBoughtToday] += deliveryCost;
+					costs[gasBoughtToday] += storageCost * (gasSoldPerDay[today] + gasLeftOver - gasBoughtToday);
+				}
+				costs[0] -= deliveryCost;
+				int minCost = costs[smallestPurchase];
+				int amountFromYesterday = gasSoldPerDay[today] + gasLeftOver - smallestPurchase;
+				for(int gasBoughtToday = smallestPurchase; gasBoughtToday <= gasSoldPerDay[today] + gasLeftOver; gasBoughtToday++) {
+					if(costs[gasBoughtToday] < minCost) {
+						minCost = costs[gasBoughtToday];
+						amountFromYesterday = gasSoldPerDay[today] + gasLeftOver - gasBoughtToday;
+					}
+				}
+				TableEntry newCost = new TableEntry(minCost, bestCosts[amountFromYesterday][today-1]); 
+				bestCosts[gasLeftOver][today] = newCost;
+			}
+		}
+		totalCost = bestCosts[0][numDays - 1].getCost();
 	}
 	
 	public void outputSolution() {
@@ -126,8 +161,10 @@ public class Solver {
 		
 		//RecursiveSolution solver = new RecursiveSolution("input.txt");
 		Solver solver = new Solver("smallInput.txt");
-		solver.solve(solver.getGasSoldPerDay(), solver.getNumDays());
-		System.out.println(solver.getTotalCost());
+		solver.dyProSolve();
+		System.out.println("DP: " + solver.getTotalCost());
+		solver.recursiveSolve(solver.getGasSoldPerDay(), solver.getNumDays());
+		System.out.println("recursive: " + solver.getTotalCost());
 		solver.outputSolution();
 		
 	}
