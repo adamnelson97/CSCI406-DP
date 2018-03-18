@@ -17,13 +17,17 @@ public class Solver {
 	private boolean[] deliveryDays;
 	private String inputFile;
 	
+	//Parameterized Constructor
 	public Solver(String inputFileName) {
 		try {
+			//Create a file reader to read the input
 			inputFile = new String(inputFileName);
 			String input = new String();
 			FileReader reader;
 			reader = new FileReader(inputFileName);
 			Scanner scan = new Scanner(reader);
+			
+			//Read in the constants n, L, P, and c for the problem
 			input = scan.nextLine();
 			String[] split = new String[4];
 			split = input.split(" ");
@@ -31,6 +35,8 @@ public class Solver {
 			tankCapacity = Integer.parseInt(split[1]);
 			deliveryCost = Integer.parseInt(split[2]);
 			storageCost = Integer.parseInt(split[3]);
+			
+			//Create arrays based on the length of the problem
 			gasSoldPerDay = new int[numDays];
 			gasOrderedPerDay = new int[numDays];
 			deliveryDays = new boolean[numDays];
@@ -38,10 +44,10 @@ public class Solver {
 			split = new String[numDays];
 			split = input.split(" ");
 			for (int i = 0; i < numDays; i++) {
-				gasSoldPerDay[i] = Integer.parseInt(split[i]);
+				gasSoldPerDay[i] = Integer.parseInt(split[i]);	//Store the projected demand for each day
 				deliveryDays[i] = false;
 			}
-			scan.close();
+			scan.close(); //Close the input file
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -49,6 +55,7 @@ public class Solver {
 		
 	}
 	
+	//Getters
 	public int getTankCapacity() {
 		return tankCapacity;
 	}
@@ -72,6 +79,7 @@ public class Solver {
 	public int[] getGasSoldPerDay() {
 		return gasSoldPerDay;
 	}
+	
 	
 	public int recursiveSolve(int[] gasToSell, int days) {
 		
@@ -175,6 +183,7 @@ public class Solver {
 		}
 	}
 	
+	//Writes solution to output file
 	public void outputSolution() {
 		try {
 			PrintWriter writer = new PrintWriter("output_" + inputFile);
